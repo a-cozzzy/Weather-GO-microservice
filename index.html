@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link rel="stylesheet" href="static/style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <div class="search">
+        <input
+          type="text"
+          name="city"
+          id="city"
+          placeholder="Enter city name"
+          spellcheck="false"
+        />
+        <button type="submit" id="searchButton">
+          <img src="/static/images/search.png" />
+        </button>
+      </div>
+
+      <div class="error">
+        <p>Invalid city name</p>
+      </div>
+      <div class="weather" id="weather"></div>
+    </div>
+    <script>
+      document
+        .getElementById("searchButton")
+        .addEventListener("click", function () {
+          const city = document.getElementById("city").value;
+          fetch(`/weather/${city}`)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              const weatherData = document.getElementById("weather");
+              const errorDiv = document.querySelector(".error");
+              if (data.name) {
+                weatherData.style.display = "block"; // Show weather data div
+                errorDiv.style.display = "none"; // Hide error message div
+
+                // Construct the URL for the weather icon image
+                const iconCode = data.weather[0].icon;
+                const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+                weatherData.innerHTML = `
+                
+                <div class="forecast">
+                  <img src="${iconUrl}" class="weather-icon" />
+                  <div class="tempcontainer">
+                    ${Math.round(data.main.temp - 273.15)}°
+                    <span class="cels">C</span>
+                  </div>
+                </div>
+                
+                <p class="description">${data.weather[0].description.toUpperCase()}</p>
+                <div class="details">
+                    <div class="col">
+                        <img src="/static/images/thermometer.png" />
+                        <div>
+                            <p class="feelslike">${Math.round(
+                              data.main.feels_like - 273.15
+                            )}°C</p>
+                            <p>Real feel</p>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <img src="/static/images/wind.png" />
+                        <div>
+                            <p class="wind">${data.wind.speed} m/s</p>
+                            <p>Wind speed</p>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <div class="details">
+                  <div class="col">
+                    <img src="/static/images/drop.png" />
+                    <div>
+                        <p class="rain">${data.rain["1h"]} mm</p>
+                        <p>Rain</p>
+                    </div>
+                </div>
+                    <div class="col">
+                        <img src="/static/images/humidity.png" />
+                        <div>
+                            <p class="humidity">${data.main.humidity}%</p>
+                            <p>Humidity</p>
+                        </div>
+                    </div>
+
+                </div>`;
+              } else {
+                weatherData.style.display = "none"; // Hide weather data div
+                errorDiv.style.display = "block"; // Show error message div
+              }
+            })
+            .catch((error) => console.error("Error:", error));
+        });
+    </script>
+  </body>
+</html>
